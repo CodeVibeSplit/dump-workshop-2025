@@ -1,15 +1,15 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import './App.css';
-import { AdminHomePage } from './admin/homepage/AdminHomePage';
-import QuestionsList from './admin/questions/QuestionsList';
-import AddQuestion from './admin/questions/AddQuestions';
-import { PlayerHomePage } from './player/homepage/PlayerHomePage';
-import Game from './player/game/Game';
-import { Navigation } from './shared/Navigation';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import "./App.css";
+import { AdminHomePage } from "./admin/homepage/AdminHomePage";
+import QuestionsList from "./admin/questions/QuestionsList";
+import AddQuestion from "./admin/questions/AddQuestions";
+import { PlayerHomePage } from "./player/homepage/PlayerHomePage";
+import Game from "./player/game/Game";
+import { Navigation } from "./shared/Navigation";
 
 function AppContent() {
   return (
-    <div>
+    <div className="App">
       <Navigation />
       <Routes>
         <Route path="/admin" element={<AdminHomePage />} />
@@ -25,6 +25,16 @@ function AppContent() {
 function App() {
   return (
     <Router>
+      <div className="navbar">
+        {/* Home, and back buttons with functionalities*/}
+        <button
+          onClick={() => (window.location.href = "/")}
+          style={{ marginRight: "1rem" }}
+        >
+          Home
+        </button>
+        <button onClick={() => window.history.back()}>Back</button>
+      </div>
       <AppContent />
     </Router>
   );

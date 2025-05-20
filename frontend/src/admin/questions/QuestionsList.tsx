@@ -5,198 +5,200 @@ import { updateQuestion } from "./updateQuestion";
 import { Question, Answer } from "./types";
 import "./QuestionsList.scss";
 
+const containerStyle = {
+  maxWidth: "600px",
+  width: "600px",
+  margin: "40px auto",
+  padding: "20px",
+  border: "1px solid #ccc",
+  borderRadius: "8px",
+  fontFamily: "Arial, sans-serif",
+  backgroundColor: "rgb(71 75 102)",
+};
+
 const QuestionsList: React.FC = () => {
-	const [questions, setQuestions] = useState<Question[]>([]);
-	const [loading, setLoading] = useState<boolean>(true);
-	const [error, setError] = useState<string | null>(null);
-	const [showAnswersId, setShowAnswersId] = useState<number | null>(null);
-	const [questionToUpdate, setQuestionForUpdate] = useState<Question | null>(
-		null
-	);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [questionToUpdate, setQuestionForUpdate] = useState<Question | null>(
+    null
+  );
 
-	useEffect(() => {
-		fetchQuestions(setQuestions, setError, setLoading);
-	}, []);
+  useEffect(() => {
+    fetchQuestions(setQuestions, setError, setLoading);
+  }, []);
 
-	const handleDelete = async (id: number) => {
-		await deleteQuestion(id, setQuestions, setError);
-	};
+  const handleDelete = async (id: number) => {
+    await deleteQuestion(id, setQuestions, setError);
+  };
 
-	const toggleUpdate = (question: Question) => {
-		if (questionToUpdate?.id === question.id) {
-			setQuestionForUpdate(null);
-		} else {
-			setQuestionForUpdate(question);
-		}
+  const toggleUpdate = (question: Question) => {
+    if (questionToUpdate?.id === question.id) {
+      setQuestionForUpdate(null);
+    } else {
+      setQuestionForUpdate(question);
+    }
+  };
 
-		handleShowAnswers(question.id);
-	};
+  const handleQuestionTextChange = (newText: string) => {
+    const updatedQuestion = {
+      ...questionToUpdate,
+      text: newText,
+    };
 
-	const handleShowAnswers = (questionId: number) => {
-		if (showAnswersId === questionId) {
-			setShowAnswersId(null);
-		} else {
-			setShowAnswersId(questionId);
-		}
-	};
+    setQuestionForUpdate(updatedQuestion as Question);
+  };
 
-	const handleQuestionTextChange = (newText: String) => {
-		const updatedQuestion = {
-			...questionToUpdate,
-			text: newText,
-		};
+  const handleAnswerUpdated = (answer: Answer) => {
+    const answers = questionToUpdate?.answers ?? [];
+    const updatedAnswers: Answer[] = [];
 
-		setQuestionForUpdate(updatedQuestion as Question);
-	};
+    for (let index = 0; index < answers.length; index++) {
+      const ans = answers[index];
 
-	const handleAnswerUpdated = (answer: Answer) => {
-		const answers = questionToUpdate?.answers ?? [];
-		const updatedAnswers: Answer[] = [];
+      if (ans.id === answer.id) {
+        updatedAnswers.push(answer);
+      } else {
+        updatedAnswers.push(ans);
+      }
+    }
 
-		for (let index = 0; index < answers.length; index++) {
-			const ans = answers[index];
+    const updatedQuestion = {
+      ...questionToUpdate!,
+      answers: updatedAnswers,
+    } as Question;
 
-			if (ans.id === answer.id) {
-				updatedAnswers.push(answer);
-			} else {
-				updatedAnswers.push(ans);
-			}
-		}
+    setQuestionForUpdate(updatedQuestion);
+  };
 
-		const updatedQuestion = {
-			...questionToUpdate!,
-			answers: updatedAnswers,
-		} as Question;
+  const handleUpdateQuestion = async () => {
+    await updateQuestion(questionToUpdate!, setError, setLoading);
+    if (error == null) {
+      const updatedQuestions: Question[] = [];
 
-		setQuestionForUpdate(updatedQuestion);
-	};
+      for (let index = 0; index < questions.length; index++) {
+        if (questionToUpdate!.id === questions[index].id) {
+          updatedQuestions.push(questionToUpdate!);
+        } else {
+          updatedQuestions.push(questions[index]);
+        }
+      }
 
-	const handleUpdateQuestion = async () => {
-		await updateQuestion(questionToUpdate!, setError, setLoading);
-		if (error == null) {
-			const updatedQuestions: Question[] = [];
+      setQuestions(updatedQuestions);
 
-			for (let index = 0; index < questions.length; index++) {
-				if (questionToUpdate!.id === questions[index].id) {
-					updatedQuestions.push(questionToUpdate!);
-				} else {
-					updatedQuestions.push(questions[index]);
-				}
-			}
+      toggleUpdate(questionToUpdate!);
+    }
+  };
 
-			setQuestions(updatedQuestions);
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-			toggleUpdate(questionToUpdate!);
-		}
-	};
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
-	if (loading) {
-		return <div>Loading...</div>;
-	}
-
-	if (error) {
-		return <div>Error: {error}</div>;
-	}
-
-	return (
-		<div>
-			<h2>Questions</h2>
-			<ul>
-				{questions.map((question) => (
-					<li key={question.id} className="question-container">
-						{questionToUpdate?.id === question.id ? (
-							<input
-								value={questionToUpdate?.text}
-								onChange={(e) => handleQuestionTextChange(e.target.value)}
-							/>
-						) : (
-							<strong>{question.text}</strong>
-						)}
-						{showAnswersId === question.id && (
-							<div>
-								{questionToUpdate?.id === question.id ? (
-									questionToUpdate.answers.map((answer, index) => (
-										<div key={answer.id}>
-											<input
-												type="radio"
-												key={index}
-												id={answer.id.toString()}
-												name="correctAnswer"
-												onChange={() => {
-													const updatedAnswers = questionToUpdate!.answers.map((a) => ({
-														...a,
-														isCorrect: a.id === answer.id,
-													}));
-													setQuestionForUpdate({
-														...questionToUpdate!,
-														answers: updatedAnswers,
-													});
-												}}
-												checked={answer.isCorrect}
-											/>
-											<input
-												value={answer.text}
-												onChange={(e) =>
-													handleAnswerUpdated({
-														...answer,
-														text: e.target.value,
-													})
-												}
-											/>
-											<br />
-										</div>
-									))
-								) : (
-									<ul>
-										{question.answers.map((answer, index) => (
-											<li key={index}>{answer.text}</li>
-										))}
-									</ul>
-								)}
-							</div>
-						)}
-						<button
-							className="delete-button"
-							onClick={() => handleDelete(question.id)}
-						>
-							Delete
-						</button>
-						{questionToUpdate == null ? (
-							<button
-								className="update-button"
-								onClick={() => toggleUpdate(question)}
-							>
-								Update
-							</button>
-						) : (
-							<div>
-								<button
-									className="save-button"
-									onClick={() => handleUpdateQuestion()}
-								>
-									Save
-								</button>
-								<button
-									className="cancel-button"
-									onClick={() => toggleUpdate(question)}
-								>
-									Cancel
-								</button>
-							</div>
-						)}
-						{questionToUpdate == null && (
-							<button onClick={() => handleShowAnswers(question.id)}>
-								{showAnswersId === question.id
-									? "Hide answers"
-									: "Show answers"}
-							</button>
-						)}
-					</li>
-				))}
-			</ul>
-		</div>
-	);
+  return (
+    <div style={containerStyle}>
+      <h2>Questions</h2>
+      <div>
+        {questions.map((question) => (
+          <div key={question.id} className="question-container">
+            {questionToUpdate?.id === question.id ? (
+              <input
+                value={questionToUpdate?.text}
+                onChange={(e) => handleQuestionTextChange(e.target.value)}
+              />
+            ) : (
+              <strong className="question-text">{question.text}</strong>
+            )}
+            <div className="answers">
+              {questionToUpdate?.id === question.id ? (
+                questionToUpdate.answers.map((answer, index) => (
+                  <div key={answer.id} className="answer">
+                    <input
+                      type="radio"
+                      key={index}
+                      id={answer.id.toString()}
+                      name="correctAnswer"
+                      onChange={() => {
+                        const updatedAnswers = questionToUpdate!.answers.map(
+                          (a) => ({
+                            ...a,
+                            isCorrect: a.id === answer.id,
+                          })
+                        );
+                        setQuestionForUpdate({
+                          ...questionToUpdate!,
+                          answers: updatedAnswers,
+                        });
+                      }}
+                      checked={answer.isCorrect}
+                    />
+                    <input
+                      className="answer-text"
+                      value={answer.text}
+                      onChange={(e) =>
+                        handleAnswerUpdated({
+                          ...answer,
+                          text: e.target.value,
+                        })
+                      }
+                    />
+                    <br />
+                  </div>
+                ))
+              ) : (
+                <div>
+                  {question.answers.map((answer, index) => (
+                    <div
+                      className={answer.isCorrect ? "correct" : ""}
+                      key={index}
+                    >
+                      {index + 1}) {answer.text}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div>
+              {questionToUpdate == null && (
+                <button
+                  className="delete-button"
+                  onClick={() => handleDelete(question.id)}
+                >
+                  Delete
+                </button>
+              )}
+              {questionToUpdate == null ? (
+                <button
+                  className="update-button"
+                  onClick={() => toggleUpdate(question)}
+                >
+                  Update
+                </button>
+              ) : (
+                <div>
+                  <button
+                    className="save-button"
+                    onClick={() => handleUpdateQuestion()}
+                  >
+                    Save
+                  </button>
+                  <button
+                    className="cancel-button"
+                    onClick={() => toggleUpdate(question)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default QuestionsList;
-
