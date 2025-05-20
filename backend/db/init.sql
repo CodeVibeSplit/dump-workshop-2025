@@ -1,0 +1,1 @@
+GRANT ALL PRIVILEGES ON DATABASE "quiz_db" to postgres;

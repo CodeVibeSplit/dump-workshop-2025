@@ -1,0 +1,27 @@
+.question-container {
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.question-wrap-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.delete-button {
+  background-color: red;
+}
+
+.update-button {
+  background-color: lightblue;
+}
+
+.save-button {
+  background-color: green;
+}
+
+.cancel-button {
+  background-color: grey;
+}
