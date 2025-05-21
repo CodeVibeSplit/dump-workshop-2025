@@ -1,38 +1,40 @@
-version: '3.8'
-
 services:
-  frontend:
-    build:
-      context: ./frontend
-    container_name: quiz-frontend
-    ports:
-      - "5173:5173"
-
-  app:
-    build:
-      context: ./backend
-    container_name: quiz-app
-    depends_on:
-      - db
+  quiz-db:
+    image: image baze
+    container_name: ime container-a
+    networks:
+      - ime network-a
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/quiz_db
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
-    ports:
-      - "8080:8080"
-
-  db:
-    image: postgres:15
-    container_name: quiz-db
-    environment:
-      - POSTGRES_DB=quiz_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - niz environment varijabli potrebnih container-u
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ime volumena : putanja unutar container-a
     ports:
-      - "5432:5432"
+      - "port na lokalnom računalu : port u container-u"
+
+  quiz-backend:
+    build:
+      context: putanja do backend Dockerfile-a
+    container_name: ime container-a
+    networks:
+      - ime network-a
+    environment:
+      - niz environment varijabli potrebnih container-u
+    ports:
+      - "port na lokalnom računalu : port u container-u"
+    depends_on:
+      - niz container-a koji se moraju pokrenuti prije ovoga
+
+  quiz-frontend:
+    build:
+      context: putanja do frontend Dockerfile-a
+    container_name: ime container-a
+    networks:
+      - ime network-a
+    ports:
+      - "port na lokalnom računalu : port u container-u"
+
+networks:
+  ime network-a kojeg želimo stvoriti:
 
 volumes:
-  postgres-data:
+  ime volume-a kojeg želimo stvoriti:
