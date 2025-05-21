@@ -5,7 +5,7 @@ Moderna web aplikacija za kreiranje i rješavanje interaktivnih kvizova. Omoguć
 
 Za kraj naše radionice pripremili smo vam jedan jednostavan zadatak.
 
-1. Zamijenite trenutno korištenu sliku (*image*) za `quiz-db` u datoteci `docker-compose.yaml` sa `code-vibe-quiz-db`
+1. Zamijenite trenutno korištenu sliku (*image*) za `quiz-db` u datoteci `docker-compose.yaml` sa `codevibe2025/code-vibe-quiz-db:latest`
 2. Pokrenite aplikaciju i točno riješite svih 10 pitanja.
 
 **Nagrada:** Posebna nagrada čeka najbržeg sudionika s potpunim rezultatom!
