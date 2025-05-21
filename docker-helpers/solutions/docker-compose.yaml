@@ -1,0 +1,44 @@
+services:
+  quiz-db:
+    image: postgres:15
+    container_name: quiz-db
+    networks:
+      - quiz-network
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=quiz_db
+    volumes:
+      - quiz-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  quiz-backend:
+    build:
+      context: ./backend
+    container_name: quiz-backend
+    networks:
+      - quiz-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://quiz-db:5432/quiz_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      - quiz-db
+
+  quiz-frontend:
+    build:
+      context: ./frontend
+    container_name: quiz-frontend
+    networks:
+      - quiz-network
+    ports:
+      - "5173:5173"
+
+networks:
+  quiz-network:
+
+volumes:
+  quiz-data:
